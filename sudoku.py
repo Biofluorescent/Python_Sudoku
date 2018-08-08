@@ -230,7 +230,7 @@ class SudokuUI(Frame):
 		x1 = y1 = MARGIN + SIDE * 7
 		self.canvas.create_oval(
 			x0, y0, x1, y1, t
-			ags="victory", fill="dark orange", outline="orange"
+			tags="victory", fill="dark orange", outline="orange"
 		)
 		# Create text 
 		x = y = MARGIN + 4 * SIDE + SIDE / 2
