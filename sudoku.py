@@ -8,6 +8,20 @@ SIDE = 50 # Width of a cell
 WIDTH = HEIGHT = MARGIN * 2 + SIDE * 9 # Width & Height of entire board
 
 
+def parse_arguments():
+	"""
+	Parses args of form:
+		sudoku.py <board name>
+	Name must be in 'BOARDS' list
+	"""
+	arg_parser = argparse.ArgumentParser()
+	arg_parser.add_argument("--board", help="Desired board name", type=str, 
+		choices=BOARDS, required=True)
+	# Create dict of keys
+	args = vars(arg_parser.parse_args())
+	return args['board']
+	
+
 class SudokuError(Exception):
 	"""
 	An application specific error.
@@ -20,7 +34,7 @@ class SudokuBoard(object):
 	Sudoku Board Representation
 	"""
 	def __init__(self, board_file):
-		self.board = __create_board(board_file)
+		self.board = self.__create_board(board_file)
 	
 	
 	def __create_board(self, board_file):
@@ -50,7 +64,6 @@ class SudokuBoard(object):
 		# Raise error if not 9 lines
 		if len(board) != 9:
 			raise SudokuError("Each puzzle must be 9 lines long.")
-		
 		# Return constructed board
 		return board
 
@@ -130,7 +143,7 @@ class SudokuUI(Frame):
 	def __initUI(self):
 		self.parent.title("Sudoku")
 		self.pack(fill=BOTH, expand=1)
-		self.canvas = Canvas(self, width=Width, height=HEIGHT)
+		self.canvas = Canvas(self, width=WIDTH, height=HEIGHT)
 		self.canvas.pack(fill=BOTH, side=TOP)
 		clear_botton = Button(self, text="Clear Answers", command=self.__clear_answers)
 		clear_botton.pack(fill=BOTH, side=BOTTOM)
@@ -205,11 +218,11 @@ class SudokuUI(Frame):
 	def __draw_cursor(self):
 		self.canvas.delete("cursor")
 		if self.row >= 0 and self.col >=0:
-		x0 = MARGIN + self.col * SIDE + 1
-		y0 = MARGIN + self.row * SIDE + 1
-		x1 = MARGIN + (self.col + 1) * SIDE - 1
-		y1 = MARGIN + (self.row + 1) * SIDE - 1
-		self.canvas.create_rectangle(x0, y0, x1, y1, outline="red", tags = "cursor")
+			x0 = MARGIN + self.col * SIDE + 1
+			y0 = MARGIN + self.row * SIDE + 1
+			x1 = MARGIN + (self.col + 1) * SIDE - 1
+			y1 = MARGIN + (self.row + 1) * SIDE - 1
+			self.canvas.create_rectangle(x0, y0, x1, y1, outline="red", tags = "cursor")
 		
 	
 	def __key_pressed(self, event):
@@ -229,7 +242,7 @@ class SudokuUI(Frame):
 		x0 = y0 = MARGIN + SIDE * 2
 		x1 = y1 = MARGIN + SIDE * 7
 		self.canvas.create_oval(
-			x0, y0, x1, y1, t
+			x0, y0, x1, y1,
 			tags="victory", fill="dark orange", outline="orange"
 		)
 		# Create text 
@@ -239,3 +252,16 @@ class SudokuUI(Frame):
 			text="You win!", tags="winner",
 			fill="white", font=("Arial", 32)
 		)
+		
+
+if __name__ == '__main__':
+	board_name = parse_arguments()
+	
+	with open('%s.sudoku' % board_name, 'r') as board_files:
+		game = SudokuGame(board_files)
+		game.start()
+		
+		root = Tk()
+		SudokuUI(root, game)
+		root.geometry("%dx%d" % (WIDTH, HEIGHT + 40))
+		root.mainloop()
